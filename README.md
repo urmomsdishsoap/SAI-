@@ -1,59 +1,19 @@
-# SAI 🎓
+SAI — Student AI Scheduler
+Upload your course syllabus and SAI automatically builds your full semester schedule. No more digging through PDFs to find due dates.
+What it does
 
-Upload any course syllabus and instantly get a clean schedule of every lecture, assignment, exam, and project — with deadline reminders.
+Upload a syllabus PDF or paste the text
+AI reads it and extracts every lecture, assignment, quiz, lab, midterm and project
+Displays everything in a clean color-coded schedule organized by month
+Filter by type — just see quizzes, just see assignments, etc.
+Export to Google Calendar, download as .ics, or save as CSV
+Enable deadline reminders so you never miss a due date
 
-**Free for students. No account needed.**
+How to use:
 
----
-
-## Deploy in 5 minutes (free)
-
-### 1. Get an Anthropic API Key
-- Go to [platform.anthropic.com](https://platform.anthropic.com)
-- Sign up and create an API key
-- This is YOUR key — it stays secret on the server, students never see it
-
-### 2. Push this repo to GitHub
-```bash
-git init
-git add .
-git commit -m "initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/sai.git
-git push -u origin main
-```
-
-### 3. Deploy to Netlify (free)
-- Go to [netlify.com](https://netlify.com) and sign up free
-- Click **"Add new site"** → **"Import an existing project"**
-- Connect your GitHub and select this repo
-- Click **Deploy site**
-
-### 4. Add your API key (secret)
-- In Netlify dashboard → **Site settings** → **Environment variables**
-- Click **Add a variable**
-- Key: `ANTHROPIC_API_KEY`
-- Value: your `sk-ant-...` key
-- Click **Save** and **Redeploy**
-
-That's it! Your site is live and free for any student to use. 🚀
-
----
-
-## How it works
-
-- Students upload a PDF or paste their syllabus text
-- Your serverless function (hidden from users) calls the Claude API
-- Claude extracts all dates, assignments, exams, and lectures
-- Students get a clean color-coded schedule with deadline reminders
-
-## Cost
-
-Analyzing one syllabus costs roughly **$0.01**. For 1,000 students that's ~$10/month. Anthropic gives new accounts $5 free to start.
-
-## Project structure
-
-```
-index.html                  ← the entire frontend app
-netlify/functions/analyze.js ← serverless function (holds your API key)
-netlify.toml                ← routes /api/analyze to the function
-```
+Go to the website
+Upload your syllabus PDF or paste the syllabus text into the box
+Click Generate My Schedule
+Your full semester schedule will appear
+Hit Enable Reminders to get notified as deadlines approach
+Export to your calendar app of choice
