@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAI — Your Schedule, Decoded</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080b08;
+    --surface: #0f140f;
+    --surface2: #161d16;
+    --border: #1e2b1e;
+    --accent: #3d8b4e;
+    --accent2: #5aad6e;
+    --accent3: #84c994;
+    --text: #deeade;
+    --text-muted: #5e735e;
+    --lecture: #5aad6e;
+    --assignment: #e8b84b;
+    --project: #4ba8e8;
+    --quiz: #c97edc;
+    --lab: #e87c4b;
+    --midterm: #e83030;
+    --presentation: #4bd4c8;
+    --tutorial: #7aad5a;
+    --other: #7a8f7a;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 10% 0%, rgba(61,139,78,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 90% 100%, rgba(61,139,78,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse 30% 30% at 50% 50%, rgba(61,139,78,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* DIAGONAL TEXTURE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(61,139,78,0.025) 60px,
+      rgba(61,139,78,0.025) 61px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* HEADER */
+  header {
+    padding: 48px 0 32px;
+    text-align: center;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(61,139,78,0.12);
+    border: 1px solid rgba(61,139,78,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .logo-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+  }
+
+  h1 .word1 { color: var(--text); }
+  h1 .word2 {
+    background: linear-gradient(135deg, #3d8b4e 0%, #84c994 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* UPLOAD ZONE */
+  .upload-section {
+    margin: 48px 0 32px;
+  }
+
+  .upload-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: 20px;
+    padding: 56px 32px;
+    text-align: center;
+    background: rgba(255,255,255,0.015);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(61,139,78,0.08) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(61,139,78,0.05);
+  }
+
+  .upload-zone:hover::before, .upload-zone.drag-over::before { opacity: 1; }
+
+  .upload-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba(61,139,78,0.18), rgba(90,173,110,0.08));
+    border: 1px solid rgba(61,139,78,0.3);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+
+  .upload-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .upload-hint {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* FILE LOADED STATE */
+  .file-loaded {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: rgba(61,139,78,0.07);
+    border: 1px solid rgba(61,139,78,0.22);
+    border-radius: 14px;
+    margin-top: 16px;
+  }
+
+  .file-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .file-info { flex: 1; }
+  .file-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+  .file-size { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .remove-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.2s;
+  }
+  .remove-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* GENERATE BUTTON */
+  .generate-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #2d6b3a, #3d8b4e);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .generate-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .generate-btn:hover::before { opacity: 1; }
+  .generate-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 40px rgba(61,139,78,0.35); }
+  .generate-btn:active { transform: translateY(0); }
+  .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* LOADING */
+  .loading-wrap {
+    text-align: center;
+    padding: 64px 32px;
+  }
+
+  .loading-ring {
+    width: 56px;
+    height: 56px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 24px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .loading-steps {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .loading-step {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  .loading-step:nth-child(1) { animation-delay: 0.5s; }
+  .loading-step:nth-child(2) { animation-delay: 2s; }
+  .loading-step:nth-child(3) { animation-delay: 3.5s; }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* ERROR */
+  .error-box {
+    background: rgba(250,109,154,0.07);
+    border: 1px solid rgba(250,109,154,0.25);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* RESULTS */
+  .results-section {
+    margin-top: 48px;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .course-name {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 400;
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .reset-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .stat-chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chip-lecture      { background: rgba(90,173,110,0.13);  color: var(--lecture); }
+  .chip-lecture .dot { background: var(--lecture); }
+  .chip-assignment      { background: rgba(232,184,75,0.13);  color: var(--assignment); }
+  .chip-assignment .dot { background: var(--assignment); }
+  .chip-project      { background: rgba(75,168,232,0.13);  color: var(--project); }
+  .chip-project .dot { background: var(--project); }
+  .chip-quiz         { background: rgba(201,126,220,0.13); color: var(--quiz); }
+  .chip-quiz .dot    { background: var(--quiz); }
+  .chip-lab          { background: rgba(232,124,75,0.13);  color: var(--lab); }
+  .chip-lab .dot     { background: var(--lab); }
+  .chip-midterm      { background: rgba(232,48,48,0.13);   color: var(--midterm); }
+  .chip-midterm .dot { background: var(--midterm); }
+  .chip-presentation      { background: rgba(75,212,200,0.13); color: var(--presentation); }
+  .chip-presentation .dot { background: var(--presentation); }
+  .chip-tutorial      { background: rgba(122,173,90,0.13);  color: var(--tutorial); }
+  .chip-tutorial .dot { background: var(--tutorial); }
+  .chip-other      { background: rgba(122,143,122,0.13); color: var(--other); }
+  .chip-other .dot { background: var(--other); }
+  .chip-exam       { background: rgba(232,48,48,0.13);   color: var(--midterm); }
+  .chip-exam .dot  { background: var(--midterm); }
+
+  /* FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--surface);
+    padding: 4px;
+    border-radius: 12px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border);
+  }
+
+  .filter-tab {
+    padding: 8px 18px;
+    border-radius: 9px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .filter-tab.active {
+    background: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* MONTH GROUP */
+  .month-group { margin-bottom: 40px; }
+
+  .month-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .month-count {
+    background: var(--surface2);
+    border-radius: 100px;
+    padding: 2px 10px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* EVENT CARD */
+  .event-card {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0;
+    margin-bottom: 8px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .event-card:hover {
+    border-color: rgba(124,109,250,0.3);
+    transform: translateX(2px);
+    background: var(--surface2);
+  }
+
+  .event-date-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 8px;
+    font-family: 'DM Mono', monospace;
+    border-right: 1px solid var(--border);
+  }
+
+  .event-day {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .event-dow {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .event-body {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .event-type-bar {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .event-content { flex: 1; min-width: 0; }
+
+  .event-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+  }
+
+  .event-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .event-tag {
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .tag-lecture      { background: rgba(90,173,110,0.15);  color: var(--lecture); }
+  .tag-assignment   { background: rgba(232,184,75,0.15);  color: var(--assignment); }
+  .tag-project      { background: rgba(75,168,232,0.15);  color: var(--project); }
+  .tag-quiz         { background: rgba(201,126,220,0.15); color: var(--quiz); }
+  .tag-lab          { background: rgba(232,124,75,0.15);  color: var(--lab); }
+  .tag-midterm      { background: rgba(232,48,48,0.15);   color: var(--midterm); }
+  .tag-presentation { background: rgba(75,212,200,0.15);  color: var(--presentation); }
+  .tag-tutorial     { background: rgba(122,173,90,0.15);  color: var(--tutorial); }
+  .tag-other        { background: rgba(122,143,122,0.15); color: var(--other); }
+  .tag-exam         { background: rgba(232,48,48,0.15);   color: var(--midterm); }
+
+  .bar-lecture      { background: var(--lecture); }
+  .bar-assignment   { background: var(--assignment); }
+  .bar-project      { background: var(--project); }
+  .bar-quiz         { background: var(--quiz); }
+  .bar-lab          { background: var(--lab); }
+  .bar-midterm      { background: var(--midterm); }
+  .bar-presentation { background: var(--presentation); }
+  .bar-tutorial     { background: var(--tutorial); }
+  .bar-other        { background: var(--other); }
+  .bar-exam         { background: var(--midterm); }
+
+  /* EMPTY */
+  .empty-state {
+    text-align: center;
+    padding: 64px 32px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+  }
+
+  /* EXPORT */
+  .export-bar {
+    display: flex;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .export-btn {
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .export-btn-primary {
+    background: rgba(61,139,78,0.12);
+    border: 1px solid rgba(61,139,78,0.3);
+    color: var(--accent);
+  }
+  .export-btn-primary:hover { background: rgba(61,139,78,0.2); }
+
+  .export-btn-secondary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .export-btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 48px 0 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
+  .demo-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 14px;
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .demo-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(109,250,204,0.04);
+  }
+
+  .export-btn-remind {
+    background: rgba(61,139,78,0.08);
+    border: 1px solid rgba(61,139,78,0.25);
+    color: var(--accent);
+  }
+  .export-btn-remind:hover { background: rgba(61,139,78,0.15); }
+  .export-btn-remind.active {
+    background: rgba(61,139,78,0.18);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* REMINDER PANEL */
+  .reminder-panel {
+    margin-top: 32px;
+    background: var(--surface2);
+    border: 1px solid rgba(61,139,78,0.22);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .reminder-panel-header {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reminder-panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .reminder-status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .reminder-off-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  .reminder-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px 6px;
+    transition: color 0.2s;
+  }
+  .reminder-close:hover { color: var(--text); }
+
+  .reminder-body { padding: 20px; }
+
+  .reminder-permission-ask {
+    text-align: center;
+    padding: 12px 0;
+  }
+
+  .reminder-permission-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .reminder-allow-btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, rgba(61,139,78,0.15), rgba(90,173,110,0.08));
+    border: 1px solid rgba(61,139,78,0.3);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reminder-allow-btn:hover { background: rgba(61,139,78,0.22); transform: translateY(-1px); }
+
+  .reminder-upcoming {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .reminder-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .reminder-urgency {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: center;
+  }
+
+  .urgency-today { background: rgba(75,168,232,0.2); color: #e8b84b; }
+  .urgency-tomorrow { background: rgba(232,184,75,0.2); color: #4ba8e8; }
+  .urgency-soon { background: rgba(61,139,78,0.18); color: var(--accent); }
+  .urgency-week { background: rgba(75,168,232,0.15); color: var(--accent2); }
+
+  .reminder-item-title {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reminder-item-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .reminder-all-clear {
+    text-align: center;
+    padding: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+  }
+
+  .reminder-note {
+    margin-top: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .stats-bar { gap: 8px; }
+    .event-card { grid-template-columns: 48px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo-badge"><span class="logo-dot"></span> SAI</div>
+    <h1><span class="word1">Decode your</span><br><span class="word2">semester.</span></h1>
+    <p class="subtitle">Upload any syllabus PDF or text file and get a clean, organized schedule of every lecture, assignment, and exam.</p>
+  </header>
+
+  <div id="upload-view">
+    <div class="upload-section">
+      <div class="upload-zone" id="dropzone">
+        <input type="file" id="fileInput" accept=".pdf,.txt,.doc,.docx" />
+        <div class="upload-icon" style="font-size:28px;display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0 auto 20px;background:linear-gradient(135deg,rgba(124,109,250,0.2),rgba(250,109,154,0.1));border:1px solid rgba(124,109,250,0.3);border-radius:16px;">↑</div>
+        <div class="upload-title">Drop your syllabus here</div>
+        <div class="upload-hint">PDF, TXT, DOCX — or paste text below</div>
+      </div>
+      <div id="fileLoaded" style="display:none"></div>
+    </div>
+
+    <!-- Paste text option -->
+    <div style="margin-bottom:24px;">
+      <label class="field-label">or paste syllabus text</label>
+      <textarea id="syllabusText"
+        placeholder="Paste your syllabus content here..."
+        style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;resize:vertical;min-height:120px;line-height:1.6;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'"
+      ></textarea>
+    </div>
+
+    <div id="errorBox" class="error-box" style="display:none"></div>
+
+    <button class="generate-btn" onclick="generateSchedule()" id="genBtn">
+      Generate My Schedule
+    </button>
+
+    <button class="demo-btn" onclick="loadDemo()">Preview Demo</button>
+  </div>
+
+  <div id="loading-view" style="display:none">
+    <div class="loading-wrap">
+      <div class="loading-ring"></div>
+      <div class="loading-text">Analyzing your syllabus...</div>
+      <div class="loading-steps">
+        <div class="loading-step">→ Parsing document structure</div>
+        <div class="loading-step">→ Extracting dates & events</div>
+        <div class="loading-step">→ Building your schedule</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="results-view" style="display:none"></div>
+
+  <footer>SAI</footer>
+</div>
+
+<script>
+function loadDemo() {
+  courseInfo = { name: "Introduction to Computer Science", code: "CS 101", instructor: "Dr. Sarah Chen", term: "Spring 2025" };
+  allEvents = [
+    { date: "2025-01-13", title: "Introduction to Computing & Course Overview", type: "lecture", description: "Week 1" },
+    { date: "2025-01-20", title: "Binary Numbers and Data Representation", type: "lecture", description: "Week 2" },
+    { date: "2025-01-27", title: "Introduction to Python — Variables & Data Types", type: "lecture", description: "Week 3" },
+    { date: "2025-02-03", title: "Control Flow — If Statements & Loops", type: "lecture", description: "Week 4" },
+    { date: "2025-02-05", title: "Assignment 1: Hello World Programs", type: "assignment", description: "Due date", weight: "5%" },
+    { date: "2025-02-10", title: "Functions and Scope", type: "lecture", description: "Week 5" },
+    { date: "2025-02-17", title: "Lists and Dictionaries", type: "lecture", description: "Week 6" },
+    { date: "2025-02-19", title: "Assignment 2: Number Guessing Game", type: "assignment", description: "Due date", weight: "5%" },
+    { date: "2025-02-26", title: "Midterm Exam — Covers Weeks 1–6", type: "midterm", description: "In class", weight: "20%" },
+    { date: "2025-03-03", title: "File I/O and Exception Handling", type: "lecture", description: "Week 8" },
+    { date: "2025-03-04", title: "Lab 3: File Parser Exercise", type: "lab", description: "Submit on portal", weight: "5%" },
+    { date: "2025-03-10", title: "Object-Oriented Programming — Classes", type: "lecture", description: "Week 9" },
+    { date: "2025-03-12", title: "Assignment 3: Student Grade Calculator", type: "assignment", description: "Due date", weight: "10%" },
+    { date: "2025-03-24", title: "Inheritance and Polymorphism", type: "lecture", description: "Week 11 — Spring break over" },
+    { date: "2025-03-31", title: "Recursion", type: "lecture", description: "Week 12" },
+    { date: "2025-04-02", title: "Project Proposal Due", type: "project", description: "Submit via portal" },
+    { date: "2025-04-07", title: "Sorting Algorithms", type: "lecture", description: "Week 13" },
+    { date: "2025-04-09", title: "Assignment 4: Linked List Implementation", type: "assignment", description: "Due date", weight: "15%" },
+    { date: "2025-04-14", title: "Searching and Big-O Notation", type: "lecture", description: "Week 14" },
+    { date: "2025-04-21", title: "Final Project Presentations", type: "lecture", description: "Week 15 — Present to class" },
+    { date: "2025-04-23", title: "Final Project Submission", type: "project", description: "Submit final code + report", weight: "25%" },
+    { date: "2025-04-30", title: "Online Quiz 5 — Sorting & Big-O", type: "quiz", description: "Due by midnight", weight: "5%" },
+    { date: "2025-05-05", title: "Final Exam", type: "midterm", description: "9:00am – 11:00am", weight: "30%" },
+  ];
+  renderResults();
+}
+
+
+// ── State ──────────────────────────────────────────────────────────────────
+let fileContent = null;
+let fileName = '';
+let allEvents = [];
+let courseInfo = {};
+let currentFilter = 'all';
+
+// ── File handling ──────────────────────────────────────────────────────────
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  fileName = file.name;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      // For PDF, we read as base64 and send to Claude as a document
+      fileContent = { type: 'pdf', data: e.target.result.split(',')[1] };
+    } else {
+      fileContent = { type: 'text', data: e.target.result };
+    }
+    showFileLoaded(file);
+  };
+  if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+    reader.readAsDataURL(file);
+  } else {
+    reader.readAsText(file);
+  }
+}
+
+function showFileLoaded(file) {
+  const size = file.size > 1024*1024
+    ? (file.size / 1024 / 1024).toFixed(1) + ' MB'
+    : (file.size / 1024).toFixed(0) + ' KB';
+  document.getElementById('fileLoaded').innerHTML = `
+    <div class="file-loaded">
+      <div class="file-icon" style="font-size:13px;font-family:'DM Mono',monospace;color:var(--accent3);">doc</div>
+      <div class="file-info">
+        <div class="file-name">${file.name}</div>
+        <div class="file-size">${size}</div>
+      </div>
+      <button class="remove-btn" onclick="removeFile()">remove</button>
+    </div>`;
+  document.getElementById('fileLoaded').style.display = 'block';
+  document.getElementById('syllabusText').value = '';
+}
+
+function removeFile() {
+  fileContent = null;
+  fileName = '';
+  document.getElementById('fileLoaded').style.display = 'none';
+  fileInput.value = '';
+}
+
+
+// ── Generate ───────────────────────────────────────────────────────────────
+async function generateSchedule() {
+  const pastedText = document.getElementById('syllabusText').value.trim();
+  const errBox = document.getElementById('errorBox');
+
+  errBox.style.display = 'none';
+
+  if (!fileContent && !pastedText) return showError('Please upload a syllabus file or paste text.');
+
+  document.getElementById('upload-view').style.display = 'none';
+  document.getElementById('loading-view').style.display = 'block';
+
+  try {
+    let messages;
+    const prompt = `You are a helpful academic assistant. Analyze this syllabus and extract ALL events. Be very specific about the TYPE — never guess wrong, read the rules carefully.
+
+TYPE RULES (use exactly these string values):
+- "lecture"      → regular class session, topic coverage, lesson
+- "lab"          → lab session, lab report, lab assignment, lab submission
+- "quiz"         → any quiz — online quiz, Canvas quiz, iClicker quiz, weekly quiz, pop quiz
+- "assignment"   → homework, written assignment, problem set, reading response, worksheet
+- "midterm"      → ANY test or exam — Test 1, Test 2, Midterm, Midterm Exam, Unit Test, Chapter Test, Term Test, Final Exam, Final Test — if it's a test or exam of any kind, use "midterm"
+- "project"      → project, group project, case study, research paper, term paper, capstone
+- "presentation" → presentation, demo day, pitch, poster session
+- "tutorial"     → tutorial session, TA session, recitation, discussion section
+- "other"        → truly anything that doesn't fit above — avoid this unless necessary
+
+CRITICAL: "Test 1", "Test 2", "Unit Test", "Chapter Test", "Term Test", "Final Exam", "Midterm Exam" → ALL use type "midterm". Never use type "exam" — it does not exist. Never put tests into "assignment" or "other".
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no backticks):
+{
+  "course": {
+    "name": "Course name",
+    "code": "Course code if available",
+    "instructor": "Instructor name if available",
+    "term": "Semester/term if available"
+  },
+  "events": [
+    {
+      "date": "YYYY-MM-DD",
+      "title": "Event title",
+      "type": "lecture|lab|quiz|assignment|midterm|project|presentation|tutorial|other",
+      "description": "Brief description or null",
+      "weight": "Grade weight if mentioned or null"
+    }
+  ]
+}
+
+For dates without a year, assume the most recent upcoming academic year.
+If a date is unclear or approximate, make your best guess based on context (e.g. "Week 3" = third week of term).
+Sort events chronologically. Include as many events as you can find.`;
+
+    if (fileContent && fileContent.type === 'pdf') {
+      messages = [{
+        role: 'user',
+        content: [
+          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fileContent.data } },
+          { type: 'text', text: prompt }
+        ]
+      }];
+    } else {
+      const text = fileContent ? fileContent.data : pastedText;
+      messages = [{
+        role: 'user',
+        content: `${prompt}\n\nSYLLABUS CONTENT:\n\n${text}`
+      }];
+    }
+
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || `API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const raw = data.content.map(b => b.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    allEvents = parsed.events || [];
+    courseInfo = parsed.course || {};
+    renderResults();
+
+  } catch (err) {
+    document.getElementById('loading-view').style.display = 'none';
+    document.getElementById('upload-view').style.display = 'block';
+    showError(err.message || 'Something went wrong. Please try again.');
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBox');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+  document.getElementById('genBtn').disabled = false;
+}
+
+// ── Render Results ─────────────────────────────────────────────────────────
+function renderResults() {
+  document.getElementById('loading-view').style.display = 'none';
+  currentFilter = 'all';
+
+  const counts = { lecture: 0, assignment: 0, project: 0, quiz: 0, lab: 0, midterm: 0, presentation: 0, tutorial: 0, other: 0 };
+  allEvents.forEach(e => { counts[e.type] = (counts[e.type] || 0) + 1; });
+
+  const statsHtml = Object.entries(counts)
+    .filter(([, v]) => v > 0)
+    .map(([k, v]) => `<div class="stat-chip chip-${k}"><span class="dot"></span>${v} ${k}${v>1?'s':''}</div>`)
+    .join('');
+
+  const courseHeader = courseInfo.name
+    ? `<span class="course-name">${courseInfo.code ? courseInfo.code + ' · ' : ''}${courseInfo.term || ''}</span>${courseInfo.name}`
+    : 'Your Schedule';
+
+  const html = `
+    <div class="results-section">
+      <div class="results-header">
+        <div class="results-title">${courseHeader}</div>
+        <button class="reset-btn" onclick="resetApp()">← new syllabus</button>
+      </div>
+      <div class="stats-bar">${statsHtml}</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('all',this)">All</button>
+        ${counts.lecture > 0 ? '<button class="filter-tab" onclick="setFilter(\'lecture\',this)">Lectures</button>' : ''}
+        ${counts.lab > 0 ? '<button class="filter-tab" onclick="setFilter(\'lab\',this)">Labs</button>' : ''}
+        ${counts.quiz > 0 ? '<button class="filter-tab" onclick="setFilter(\'quiz\',this)">Quizzes</button>' : ''}
+        ${counts.assignment > 0 ? '<button class="filter-tab" onclick="setFilter(\'assignment\',this)">Assignments</button>' : ''}
+        ${counts.midterm > 0 ? '<button class="filter-tab" onclick="setFilter(\'midterm\',this)">Midterms</button>' : ''}
+        ${counts.project > 0 ? '<button class="filter-tab" onclick="setFilter(\'project\',this)">Projects</button>' : ''}
+        ${counts.presentation > 0 ? '<button class="filter-tab" onclick="setFilter(\'presentation\',this)">Presentations</button>' : ''}
+        ${counts.tutorial > 0 ? '<button class="filter-tab" onclick="setFilter(\'tutorial\',this)">Tutorials</button>' : ''}
+      </div>
+      <div id="event-list"></div>
+      <div id="reminder-panel"></div>
+      <div class="export-bar">
+        <button class="export-btn export-btn-primary" onclick="exportCSV()">Export CSV</button>
+        <button class="export-btn export-btn-secondary" onclick="downloadICS()">Download .ics</button>
+        <button class="export-btn export-btn-secondary" onclick="addToGoogleCalendar()">Add to Google Calendar</button>
+        <button class="export-btn export-btn-remind" id="reminderBtn" onclick="toggleReminders()">Enable Reminders</button>
+      </div>
+    </div>`;
+
+  const resultsView = document.getElementById('results-view');
+  resultsView.innerHTML = html;
+  resultsView.style.display = 'block';
+  saveScheduleToStorage();
+  renderEventList();
+}
+
+function setFilter(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderEventList();
+}
+
+function renderEventList() {
+  const filtered = currentFilter === 'all'
+    ? allEvents
+    : allEvents.filter(e => e.type === currentFilter);
+
+  if (!filtered.length) {
+    document.getElementById('event-list').innerHTML = '<div class="empty-state">No events found for this filter.</div>';
+    return;
+  }
+
+  // Group by month
+  const groups = {};
+  filtered.forEach(ev => {
+    const d = new Date(ev.date + 'T12:00:00');
+    const key = isNaN(d) ? 'Unknown Date' : d.toLocaleString('default', { month: 'long', year: 'numeric' });
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(ev);
+  });
+
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const html = Object.entries(groups).map(([month, events]) => `
+    <div class="month-group">
+      <div class="month-label">
+        ${month}
+        <span class="month-count">${events.length}</span>
+      </div>
+      ${events.map(ev => {
+        const d = new Date(ev.date + 'T12:00:00');
+        const dayNum = isNaN(d) ? '?' : d.getDate();
+        const dow = isNaN(d) ? '' : DAYS[d.getDay()];
+        const type = ev.type || 'other';
+        const metaParts = [];
+        if (ev.description) metaParts.push(ev.description);
+        if (ev.weight) metaParts.push('weight: ' + ev.weight);
+        return `
+          <div class="event-card">
+            <div class="event-date-col">
+              <div class="event-day">${dayNum}</div>
+              <div class="event-dow">${dow}</div>
+            </div>
+            <div class="event-body">
+              <div class="event-type-bar bar-${type}"></div>
+              <div class="event-content">
+                <div class="event-title">${ev.title}</div>
+                ${metaParts.length ? `<div class="event-meta">${metaParts.join(' · ')}</div>` : ''}
+              </div>
+              <div class="event-tag tag-${type}">${type}</div>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  document.getElementById('event-list').innerHTML = html;
+}
+
+// ── Export ─────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Date','Title','Type','Description','Weight']];
+  allEvents.forEach(e => rows.push([e.date, e.title, e.type, e.description || '', e.weight || '']));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  download('schedule.csv', 'text/csv', csv);
+}
+
+function downloadICS() {
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//SAI//EN',
+    `X-WR-CALNAME:${courseInfo.name || 'My Schedule'}`,
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+  ];
+  allEvents.forEach((ev, i) => {
+    const d = ev.date.replace(/-/g,'');
+    // next day for DTEND (all-day events are exclusive end)
+    const end = new Date(ev.date + 'T00:00:00');
+    end.setDate(end.getDate() + 1);
+    const dEnd = end.toISOString().slice(0,10).replace(/-/g,'');
+    lines.push(
+      'BEGIN:VEVENT',
+      `DTSTART;VALUE=DATE:${d}`,
+      `DTEND;VALUE=DATE:${dEnd}`,
+      `SUMMARY:${ev.title}`,
+      `DESCRIPTION:${[ev.type, ev.description, ev.weight].filter(Boolean).join(' | ')}`,
+      `CATEGORIES:${ev.type.toUpperCase()}`,
+      `UID:sai-${i}-${d}@app`,
+      'END:VEVENT'
+    );
+  });
+  lines.push('END:VCALENDAR');
+  const ics = lines.join('\r\n');
+  download('schedule.ics', 'text/calendar;charset=utf-8', ics);
+}
+
+function addToGoogleCalendar() {
+  // Google Calendar only supports adding one event at a time via URL,
+  // so we open individual tabs for deadlines (assignments/exams/projects)
+  // and show a note for lectures
+  const deadlines = allEvents.filter(ev => ['assignment','exam','project'].includes(ev.type));
+  if (!deadlines.length) {
+    alert('No assignments, exams, or projects found to add.');
+    return;
+  }
+  if (deadlines.length > 10) {
+    const ok = confirm(`This will open ${deadlines.length} Google Calendar tabs (one per deadline). Continue?\n\nTip: Use "Download .ics" to import everything at once into Google Calendar.`);
+    if (!ok) return;
+  }
+  deadlines.forEach((ev, i) => {
+    const d = ev.date.replace(/-/g,'');
+    const end = new Date(ev.date + 'T00:00:00');
+    end.setDate(end.getDate() + 1);
+    const dEnd = end.toISOString().slice(0,10).replace(/-/g,'');
+    const title = encodeURIComponent(`[${ev.type.toUpperCase()}] ${ev.title}`);
+    const details = encodeURIComponent([ev.description, ev.weight ? `Weight: ${ev.weight}` : ''].filter(Boolean).join(' | '));
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${d}/${dEnd}&details=${details}`;
+    setTimeout(() => window.open(url, '_blank'), i * 400);
+  });
+}
+
+
+function download(filename, mime, content) {
+  const blob = new Blob([content], { type: mime });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function resetApp() {
+  fileContent = null;
+  fileName = '';
+  allEvents = [];
+  courseInfo = {};
+  try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(STORAGE_COURSE); localStorage.removeItem(STORAGE_REMINDER_ON); } catch(e) {}
+  document.getElementById('results-view').style.display = 'none';
+  document.getElementById('results-view').innerHTML = '';
+  document.getElementById('upload-view').style.display = 'block';
+  document.getElementById('fileLoaded').style.display = 'none';
+  document.getElementById('syllabusText').value = '';
+  document.getElementById('errorBox').style.display = 'none';
+  fileInput.value = '';
+}
+// ── Reminders ──────────────────────────────────────────────────────────────
+const REMINDER_TYPES = ['assignment', 'quiz', 'lab', 'midterm', 'project', 'presentation', 'other'];
+const STORAGE_KEY = 'sai_events';
+const STORAGE_COURSE = 'sai_course';
+const STORAGE_NOTIFIED = 'sai_notified';
+const STORAGE_REMINDER_ON = 'sai_reminders';
+
+function saveScheduleToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allEvents));
+    localStorage.setItem(STORAGE_COURSE, JSON.stringify(courseInfo));
+  } catch(e) {}
+}
+
+function loadScheduleFromStorage() {
+  try {
+    const ev = localStorage.getItem(STORAGE_KEY);
+    const ci = localStorage.getItem(STORAGE_COURSE);
+    if (ev) allEvents = JSON.parse(ev);
+    if (ci) courseInfo = JSON.parse(ci);
+    return !!ev;
+  } catch(e) { return false; }
+}
+
+function daysUntil(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dateStr + 'T00:00:00'); d.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function getUpcomingDeadlines() {
+  return allEvents
+    .filter(ev => REMINDER_TYPES.includes(ev.type))
+    .map(ev => ({ ...ev, daysLeft: daysUntil(ev.date) }))
+    .filter(ev => ev.daysLeft >= 0 && ev.daysLeft <= 7)
+    .sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+function urgencyLabel(days) {
+  if (days === 0) return { label: 'TODAY', cls: 'urgency-today' };
+  if (days === 1) return { label: 'TOMORROW', cls: 'urgency-tomorrow' };
+  if (days <= 3) return { label: `${days} DAYS`, cls: 'urgency-soon' };
+  return { label: `${days} DAYS`, cls: 'urgency-week' };
+}
+
+function toggleReminders() {
+  const panel = document.getElementById('reminder-panel');
+  if (panel.innerHTML !== '') { panel.innerHTML = ''; updateReminderBtn(false); return; }
+  renderReminderPanel();
+}
+
+function updateReminderBtn(active) {
+  const btn = document.getElementById('reminderBtn');
+  if (!btn) return;
+  btn.textContent = active ? 'Reminders On' : 'Enable Reminders';
+  active ? btn.classList.add('active') : btn.classList.remove('active');
+}
+
+function renderReminderPanel() {
+  const panel = document.getElementById('reminder-panel');
+  const hasPermission = Notification.permission === 'granted';
+  const upcoming = getUpcomingDeadlines();
+
+  const itemsHtml = upcoming.length === 0
+    ? `<div class="reminder-all-clear">Nothing due in the next 7 days — enjoy the calm!</div>`
+    : upcoming.map(ev => {
+        const { label, cls } = urgencyLabel(ev.daysLeft);
+        const dateStr = new Date(ev.date + 'T12:00:00').toLocaleDateString('default', { month: 'short', day: 'numeric' });
+        return `<div class="reminder-item">
+          <span class="reminder-urgency ${cls}">${label}</span>
+          <span class="reminder-item-title">${ev.title}</span>
+          <span class="reminder-item-date">${dateStr}</span>
+        </div>`;
+      }).join('');
+
+  if (!hasPermission) {
+    panel.innerHTML = `
+      <div class="reminder-panel">
+        <div class="reminder-panel-header">
+          <div class="reminder-panel-title"><span class="reminder-off-dot"></span> Deadline Reminders</div>
+          <button class="reminder-close" onclick="closeReminderPanel()">×</button>
+        </div>
+        <div class="reminder-body">
+          <div class="reminder-permission-ask">
+            <p class="reminder-permission-text">Allow browser notifications and SAI will remind you every day when a deadline is within 7 days — ramping up daily as it gets closer.</p>
+            <button class="reminder-allow-btn" onclick="requestNotificationPermission()">Allow Notifications</button>
+          </div>
+          <div style="margin-top:20px">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em;">Upcoming deadlines (next 7 days)</div>
+            <div class="reminder-upcoming">${itemsHtml}</div>
+          </div>
+        </div>
+      </div>`;
+  } else {
+    panel.innerHTML = `
+      <div class="reminder-panel">
+        <div class="reminder-panel-header">
+          <div class="reminder-panel-title"><span class="reminder-status-dot"></span> Reminders Active</div>
+          <button class="reminder-close" onclick="closeReminderPanel()">×</button>
+        </div>
+        <div class="reminder-body">
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em;">Upcoming deadlines (next 7 days)</div>
+          <div class="reminder-upcoming">${itemsHtml}</div>
+          <div class="reminder-note">
+            // Notifications fire each time you open this app · Daily reminders for anything due within 7 days · More frequent as the deadline approaches · Your schedule is saved in your browser so reminders persist between sessions.
+          </div>
+        </div>
+      </div>`;
+    updateReminderBtn(true);
+    fireNotificationsIfNeeded();
+  }
+}
+
+function closeReminderPanel() {
+  document.getElementById('reminder-panel').innerHTML = '';
+  updateReminderBtn(false);
+}
+
+async function requestNotificationPermission() {
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    saveScheduleToStorage();
+    localStorage.setItem(STORAGE_REMINDER_ON, '1');
+    renderReminderPanel();
+    fireNotificationsIfNeeded();
+  } else {
+    document.getElementById('reminder-panel').innerHTML = `
+      <div class="reminder-panel">
+        <div class="reminder-panel-header">
+          <div class="reminder-panel-title"><span class="reminder-off-dot"></span> Notifications Blocked</div>
+          <button class="reminder-close" onclick="closeReminderPanel()">×</button>
+        </div>
+        <div class="reminder-body">
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Notifications were blocked. To enable them, click the 🔒 lock icon in your browser's address bar and allow notifications for this site, then try again.</p>
+        </div>
+      </div>`;
+  }
+}
+
+function fireNotificationsIfNeeded() {
+  if (Notification.permission !== 'granted') return;
+  const upcoming = getUpcomingDeadlines();
+  if (!upcoming.length) return;
+
+  const notifiedKey = STORAGE_NOTIFIED + '_' + new Date().toDateString();
+  const alreadyFired = new Set(JSON.parse(localStorage.getItem(notifiedKey) || '[]'));
+
+  upcoming.forEach(ev => {
+    const id = ev.date + '|' + ev.title;
+    if (alreadyFired.has(id)) return;
+
+    const { label } = urgencyLabel(ev.daysLeft);
+    const emoji = '';
+    const body = ev.daysLeft === 0
+      ? `Due TODAY! Don't forget to submit.`
+      : ev.daysLeft === 1
+      ? `Due TOMORROW — last chance to prepare!`
+      : `Due in ${ev.daysLeft} days (${new Date(ev.date+'T12:00:00').toLocaleDateString('default',{month:'short',day:'numeric'})})`;
+
+    setTimeout(() => {
+      new Notification(`${ev.title}`, {
+        body,
+        icon: 'https://em-content.zobj.net/source/apple/354/graduation-cap_1f393.png',
+        tag: id,
+        badge: 'https://em-content.zobj.net/source/apple/354/bell_1f514.png'
+      });
+    }, upcoming.indexOf(ev) * 1200); // stagger notifications
+
+    alreadyFired.add(id);
+  });
+
+  localStorage.setItem(notifiedKey, JSON.stringify([...alreadyFired]));
+}
+
+// On page load — check if there's a saved schedule and fire reminders
+window.addEventListener('load', () => {
+  const on = localStorage.getItem(STORAGE_REMINDER_ON);
+  if (on && loadScheduleFromStorage() && Notification.permission === 'granted') {
+    fireNotificationsIfNeeded();
+  }
+});
+
+</script>
+</body>
+</html>
