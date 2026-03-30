@@ -17,3 +17,5 @@ Click Generate My Schedule
 Your full semester schedule will appear
 Hit Enable Reminders to get notified as deadlines approach
 Export to your calendar app of choice
+
+https://marvelous-kitsune-8ea7c9.netlify.app (check it out)
